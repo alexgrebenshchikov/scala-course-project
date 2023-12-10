@@ -1,11 +1,13 @@
 package ru.man.power.server.controller
 
+import ru.man.power.client.model.Data
 import ru.man.power.client.model.response.FlightDestinationsErrorResponse
 import ru.man.power.server.common.controller.Controller
 import ru.man.power.server.domain.request.RegistrationRequest
 import ru.man.power.server.domain.{SearchParams, User}
 import ru.man.power.server.domain.response.{
   ErrorResponse,
+  FavoritesResponse,
   FindFlightDestinationsResponse,
   SearchHistoryResponse,
 }
@@ -34,7 +36,6 @@ class FlightDestinationsController[F[_]](
       .in("api" / "v1" / "flight-destinations")
       .in(jsonBody[SearchParams])
       .out(jsonBody[FindFlightDestinationsResponse])
-      //.errorOut(jsonBody[ErrorResponse])
       .serverLogic { (user: User) => (searchParams: SearchParams) =>
         flightDestinationsService.findFlightDestinations(user, searchParams)
       }
@@ -56,6 +57,32 @@ class FlightDestinationsController[F[_]](
         flightDestinationsService.deleteSearchHistory(user)
       }
 
+  val getFavorites: ServerEndpoint[Any, F] =
+    secureEndpoint.get
+      .summary("Получить список избранных перелётов.")
+      .in("api" / "v1" / "favorites")
+      .out(jsonBody[FavoritesResponse])
+      .serverLogic { (user: User) => _ =>
+        flightDestinationsService.getFavorites(user)
+      }
+
+  val addToFavorites: ServerEndpoint[Any, F] =
+    secureEndpoint.post
+      .summary("Добавить перелёт в избранное.")
+      .in("api" / "v1" / "favorites")
+      .in(jsonBody[Data])
+      .serverLogic { (user: User) => (data: Data) =>
+        flightDestinationsService.addToFavorites(user, data)
+      }
+
+  val deleteFavorites: ServerEndpoint[Any, F] =
+    secureEndpoint.delete
+      .summary("Удалить избранное.")
+      .in("api" / "v1" / "favorites")
+      .serverLogic { (user: User) => _ =>
+        flightDestinationsService.deleteFavorites(user)
+      }
+
   val register: ServerEndpoint[Any, F] =
     endpoint.post
       .summary("Регистрация пользователя.")
@@ -73,7 +100,16 @@ class FlightDestinationsController[F[_]](
       }
 
   override def endpoints: List[ServerEndpoint[Any, F]] =
-    List(findFlightDestinations, getSearchHistory, deleteSearchHistory, register, unregister)
+    List(
+      findFlightDestinations,
+      getSearchHistory,
+      deleteSearchHistory,
+      getFavorites,
+      addToFavorites,
+      deleteFavorites,
+      register,
+      unregister,
+    )
       .map(_.withTag("FlightDestinations"))
 }
 

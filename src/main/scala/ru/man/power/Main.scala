@@ -23,7 +23,7 @@ import doobie.Transactor
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.server.Router
 import ru.man.power.database.Transactor.makeTransactor
-import ru.man.power.repository.{AccessTokenRepositoryPostgresql, PasswordsRepositoryPostgresql, SearchHistoryRepositoryPostgresql}
+import ru.man.power.repository.{AccessTokenRepositoryPostgresql, FavoritesRepositoryPostgresql, PasswordsRepositoryPostgresql, SearchHistoryRepositoryPostgresql}
 import pureconfig.ConfigSource
 import pureconfig.generic.auto._
 import ru.man.power.client.model.response.AccessTokenResponse
@@ -62,6 +62,7 @@ object Main extends IOApp {
       val tokenRepo = new AccessTokenRepositoryPostgresql[IO]
       val searchHistoryRepo = new SearchHistoryRepositoryPostgresql[IO]()
       val passwordsRepo = new PasswordsRepositoryPostgresql[IO]()
+      val favoritesRepo = new FavoritesRepositoryPostgresql[IO]()
 
       for {
         _ <- FlywayMigration.migrate[IO](conf.database)
@@ -81,7 +82,7 @@ object Main extends IOApp {
         endpoints <- IO.delay {
           List(
             FlightDestinationsController.make(
-              new RepositoryFlightDestinationsService(tokenRepo, searchHistoryRepo),
+              new RepositoryFlightDestinationsService(tokenRepo, searchHistoryRepo, favoritesRepo),
               new RepositoryAuthService(passwordsRepo),
             ),
           ).flatMap(_.endpoints)

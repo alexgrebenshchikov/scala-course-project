@@ -4,6 +4,6 @@ CREATE TABLE favorites (
     destination text,
     departure_date text,
     return_date text,
-    flightDates text,
-    flightOffers text
+    flight_dates text,
+    flight_offers text
 )

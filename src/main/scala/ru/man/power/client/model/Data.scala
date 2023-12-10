@@ -2,6 +2,7 @@ package ru.man.power.client.model
 
 import io.circe.Decoder
 import io.circe.generic.semiauto.deriveDecoder
+import ru.man.power.repository.entities.FavoritesEntity
 import sttp.tapir.Schema
 import tethys.{JsonReader, JsonWriter}
 import tethys.derivation.semiauto.{jsonReader, jsonWriter}
@@ -25,4 +26,15 @@ object Data {
 
   implicit val dataSchema: Schema[Data] = Schema.derived
     .description("Данные о перелёте.")
+
+  def toFavoritesEntity(userLogin: String, data: Data): FavoritesEntity =
+    FavoritesEntity(
+      userLogin,
+      data.origin,
+      data.destination,
+      data.departureDate,
+      data.returnDate,
+      data.links.flightDates,
+      data.links.flightOffers,
+    )
 }
