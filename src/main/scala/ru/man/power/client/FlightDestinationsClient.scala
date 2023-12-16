@@ -19,13 +19,15 @@ trait FlightDestinationsClient[F[_]] {
       FlightDestinationsResponse,
     ],
   ]
+
+  def renewAccessToken(): F[AccessTokenResponse]
 }
 
 class HttpFlightDestinationsClient[F[_]: Async](
     sttpBackend: SttpBackend[F, Any],
     flightDestinationsClientConfiguration: FlightDestinationsClientConfiguration,
 ) extends FlightDestinationsClient[F] {
-  def findFlightDestinations(
+  override def findFlightDestinations(
       searchParams: SearchParams,
       accessToken: String,
   ): F[
@@ -49,7 +51,7 @@ class HttpFlightDestinationsClient[F[_]: Async](
       .flatMap(_.body)
   }
 
-  def renewAccessToken(): F[AccessTokenResponse] = {
+  override def renewAccessToken(): F[AccessTokenResponse] = {
     val renewAccessTokenUrl: Uri =
       uri"${flightDestinationsClientConfiguration.renewTokenUrl}"
 

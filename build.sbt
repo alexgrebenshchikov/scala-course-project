@@ -14,6 +14,7 @@ val ficusVersion = "1.5.2"
 val wireVersion = "2.5.8"
 val wireMockVersion = "3.0.0"
 val testContainersVersion = "0.40.15"
+val testcontainersPostgresqlVersion = "0.40.12"
 val catsRetryVersion = "3.1.0"
 val catsLoggingVersion = "2.6.0"
 val tapirVersion = "1.7.6"
@@ -43,6 +44,7 @@ lazy val root = (project in file("."))
       "io.circe" %% "circe-parser" % circeVersion,
       "org.scalatestplus" %% "mockito-4-11" % mockitoVersion % Test,
       "com.dimafeng" %% "testcontainers-scala-scalatest" % testContainersVersion,
+      "com.dimafeng" %% "testcontainers-scala-postgresql" % testcontainersPostgresqlVersion,
       "com.typesafe" % "config" % configVersion,
       "com.iheart" %% "ficus" % ficusVersion,
       "com.softwaremill.macwire" %% "macros" % wireVersion % Provided,
@@ -73,6 +75,16 @@ lazy val root = (project in file("."))
 
       // flyway
       "org.flywaydb" % "flyway-core" % flywayVersion,
+      "com.softwaremill.sttp.tapir" %% "tapir-sttp-stub-server" % tapirVersion % Test,
+    ),
+  )
 
+lazy val IntegrationTest = (project in file("integration"))
+  .dependsOn(root % "provided -> provided;compile -> compile;test -> test; runtime -> runtime")
+  .settings(
+    publish / skip := true,
+    // extra test dependencies
+    libraryDependencies ++= Seq(
+      "org.scalatestplus" %% "mockito-4-11" % mockitoVersion % Test,
     ),
   )

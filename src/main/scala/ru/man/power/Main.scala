@@ -5,24 +5,30 @@ import cats.data.OptionT
 import cats.effect.std.Env
 import cats.effect.{ExitCode, IO, IOApp}
 import com.comcast.ip4s.{Host, Port}
+import com.typesafe.config.ConfigFactory
 import doobie.Transactor
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.server.Router
 import pureconfig.ConfigSource
 import pureconfig.generic.auto._
-import ru.man.power.client.model.configuration.FlightDestinationsAppConfig
+import ru.man.power.client.HttpFlightDestinationsClient
+import ru.man.power.client.model.configuration.{FlightDestinationsAppConfig, FlightDestinationsClientConfiguration}
 import ru.man.power.database.FlywayMigration
 import ru.man.power.database.Transactor.makeTransactor
 import ru.man.power.repository.{AccessTokenRepositoryPostgresql, FavoritesRepositoryPostgresql, PasswordsRepositoryPostgresql, SearchHistoryRepositoryPostgresql}
 import ru.man.power.server.controller.FlightDestinationsController
 import ru.man.power.server.service.{RepositoryAuthService, RepositoryFlightDestinationsService}
+import sttp.client3.asynchttpclient.cats.AsyncHttpClientCatsBackend
 import sttp.tapir.server.http4s.Http4sServerInterpreter
 import sttp.tapir.swagger.bundle.SwaggerInterpreter
 
 object Main extends IOApp {
   override def run(args: List[String]): IO[ExitCode] = {
-
     val conf = ConfigSource.default.loadOrThrow[FlightDestinationsAppConfig]
+    val config = ConfigFactory.load()
+    val flightDestinationsClientConfiguration: FlightDestinationsClientConfiguration =
+      FlightDestinationsClientConfiguration.loadConfig(config)
+
     makeTransactor[IO](conf.database).use { implicit xa: Transactor[IO] =>
       val tokenRepo = new AccessTokenRepositoryPostgresql[IO]
       val searchHistoryRepo = new SearchHistoryRepositoryPostgresql[IO]()
@@ -31,10 +37,22 @@ object Main extends IOApp {
 
       for {
         _ <- FlywayMigration.migrate[IO](conf.database)
+
+        sttpBackend <- AsyncHttpClientCatsBackend[IO]()
+        flightDestinationsClient = new HttpFlightDestinationsClient(
+          sttpBackend,
+          flightDestinationsClientConfiguration,
+        )
+
         endpoints <- IO.delay {
           List(
             FlightDestinationsController.make(
-              new RepositoryFlightDestinationsService(tokenRepo, searchHistoryRepo, favoritesRepo),
+              new RepositoryFlightDestinationsService(
+                flightDestinationsClient,
+                tokenRepo,
+                searchHistoryRepo,
+                favoritesRepo,
+              ),
               new RepositoryAuthService(passwordsRepo),
             ),
           ).flatMap(_.endpoints)

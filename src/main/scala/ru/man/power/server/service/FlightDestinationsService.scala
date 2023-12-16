@@ -3,7 +3,7 @@ package ru.man.power.server.service
 import cats.{FlatMap, Monad}
 import cats.effect.{Async, IO}
 import com.typesafe.config.ConfigFactory
-import ru.man.power.client.HttpFlightDestinationsClient
+import ru.man.power.client.{FlightDestinationsClient, HttpFlightDestinationsClient}
 import ru.man.power.client.model.Data
 import ru.man.power.client.model.Data.toFavoritesEntity
 import ru.man.power.client.model.configuration.FlightDestinationsClientConfiguration
@@ -12,19 +12,10 @@ import ru.man.power.client.model.response.FlightDestinationsErrorResponse
 import ru.man.power.client.model.response.FlightDestinationsErrorResponse.toServerErrorResponse
 import ru.man.power.repository.entities.FavoritesEntity.toFavoritesItem
 import ru.man.power.repository.entities.SearchParamsEntity.toResponse
-import ru.man.power.repository.{
-  ExternalApiAccessTokenRepository,
-  FavoritesRepository,
-  SearchHistoryRepository,
-}
+import ru.man.power.repository.{ExternalApiAccessTokenRepository, FavoritesRepository, SearchHistoryRepository}
 import ru.man.power.server.domain.{FavoritesItem, SearchParams, User}
 import ru.man.power.server.domain.SearchParams.toEntity
-import ru.man.power.server.domain.response.{
-  ErrorResponse,
-  FavoritesResponse,
-  FindFlightDestinationsResponse,
-  SearchHistoryResponse,
-}
+import ru.man.power.server.domain.response.{ErrorResponse, FavoritesResponse, FindFlightDestinationsResponse, SearchHistoryResponse}
 import sttp.client3.{DeserializationException, HttpError}
 import sttp.client3.asynchttpclient.cats.AsyncHttpClientCatsBackend
 
@@ -46,6 +37,7 @@ trait FlightDestinationsService[F[_]] {
 }
 
 class RepositoryFlightDestinationsService(
+    private val client: FlightDestinationsClient[IO],
     private val tokenRepository: ExternalApiAccessTokenRepository[IO],
     private val searchHistoryRepository: SearchHistoryRepository[IO],
     private val favoritesRepository: FavoritesRepository[IO],
@@ -54,20 +46,10 @@ class RepositoryFlightDestinationsService(
       user: User,
       searchParams: SearchParams,
   ): IO[Either[ErrorResponse, FindFlightDestinationsResponse]] = {
-    val config = ConfigFactory.load()
-    val flightDestinationsClientConfiguration: FlightDestinationsClientConfiguration =
-      FlightDestinationsClientConfiguration.loadConfig(config)
-    val asyncBackend = AsyncHttpClientCatsBackend[IO]()
-
     def findFlightDestinationsInternal(
         updateAccessToken: Boolean = false,
     ): IO[Either[ErrorResponse, FindFlightDestinationsResponse]] =
       for {
-        sttpBackend <- asyncBackend
-        client = new HttpFlightDestinationsClient(
-          sttpBackend,
-          flightDestinationsClientConfiguration,
-        )
         accessToken <-
           if (updateAccessToken)
             for {
