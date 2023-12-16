@@ -8,8 +8,8 @@ import ru.man.power.client.model.{Data, Dictionaries, Issue, Meta}
 
 case class FlightDestinationsResponse(
     data: Seq[Data],
-    dictionaries: Dictionaries,
-    meta: Meta,
+    dictionaries: Option[Dictionaries],
+    meta: Option[Meta],
     warnings: Option[Seq[Issue]],
 )
 

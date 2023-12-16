@@ -56,7 +56,7 @@ class RepositoryFlightDestinationsService(
   ): IO[Either[ErrorResponse, FindFlightDestinationsResponse]] = {
     val config = ConfigFactory.load()
     val flightDestinationsClientConfiguration: FlightDestinationsClientConfiguration =
-      FlightDestinationsClientConfiguration.load(config)
+      FlightDestinationsClientConfiguration.loadConfig(config)
     val asyncBackend = AsyncHttpClientCatsBackend[IO]()
 
     def findFlightDestinationsInternal(

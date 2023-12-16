@@ -3,21 +3,7 @@ package ru.man.power.client
 import cats.effect.kernel.Async
 import cats.implicits.toFlatMapOps
 import ru.man.power.client.model.configuration.FlightDestinationsClientConfiguration
-import ru.man.power.client.model.response.{
-  AccessTokenResponse,
-  FlightDestinationsErrorResponse,
-  FlightDestinationsResponse,
-}
-import ru.man.power.client.model.configuration.{
-  FlightDestinationsClientConfiguration,
-  OrderClientConfiguration,
-}
-import ru.man.power.client.model.response
-import ru.man.power.client.model.response.{
-  AccessTokenResponse,
-  FlightDestinationsErrorResponse,
-  FlightDestinationsResponse,
-}
+import ru.man.power.client.model.response.{AccessTokenResponse, FlightDestinationsErrorResponse, FlightDestinationsResponse}
 import ru.man.power.commons.SttpResponseUtils
 import ru.man.power.server.domain.SearchParams
 import sttp.client3.{ResponseException, SttpBackend, UriContext, basicRequest}

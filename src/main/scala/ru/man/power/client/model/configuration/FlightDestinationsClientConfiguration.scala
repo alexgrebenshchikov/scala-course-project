@@ -15,8 +15,12 @@ case class FlightDestinationsClientConfiguration(
 )
 
 object FlightDestinationsClientConfiguration {
-  def load(config: Config): FlightDestinationsClientConfiguration =
+  def loadConfig(config: Config): FlightDestinationsClientConfiguration =
     config.as[FlightDestinationsClientConfiguration]("amadeus-api.find")
+
+  def loadTestConfig(config: Config): FlightDestinationsClientConfiguration =
+    config.as[FlightDestinationsClientConfiguration]("amadeus-api-test.find")
+
 
   private implicit val flightDestinationsClientConfigurationReader
       : ValueReader[FlightDestinationsClientConfiguration] =
