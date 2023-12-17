@@ -13,7 +13,7 @@ case class SearchParams(
     departureDate: String,
     oneWay: Boolean,
     maxPrice: Int,
-    travelDuration: TravelDuration,
+    travelDuration: Option[TravelDuration],
 )
 
 object SearchParams {
@@ -37,7 +37,7 @@ object SearchParams {
       searchParams.departureDate,
       searchParams.oneWay,
       searchParams.maxPrice,
-      searchParams.travelDuration.lower,
-      searchParams.travelDuration.upper
+      searchParams.travelDuration.map(_.lower).getOrElse(0),
+      searchParams.travelDuration.map(_.upper).getOrElse(0)
     )
 }

@@ -7,7 +7,7 @@ import java.time.Instant
 import java.util.UUID
 
 object TestData {
-  val searchParams: SearchParams = SearchParams("PAR", "2024-01-23", oneWay = true, 200, TravelDuration(1, 10))
+  val searchParams: SearchParams = SearchParams("PAR", "2024-01-23", oneWay = false, 200, Some(TravelDuration(1, 10)))
 
   val dataList: List[Data] = List(
     Data(
@@ -15,7 +15,7 @@ object TestData {
       "PAR",
       "CAS",
       "2022-09-06",
-      "2022-09-11",
+      Some("2022-09-11"),
       Price("161.90"),
       Links("a.com", "b.com"),
     ),
@@ -24,7 +24,7 @@ object TestData {
       "PAR",
       "AYT",
       "2022-10-16",
-      "2022-10-31",
+      Some("2022-10-31"),
       Price("181.50"),
       Links("a.com", "b.com"),
     ),
@@ -39,7 +39,7 @@ object TestData {
        |            "origin": "${dataList.head.origin}",
        |            "destination": "${dataList.head.destination}",
        |            "departureDate": "${dataList.head.departureDate}",
-       |            "returnDate": "${dataList.head.returnDate}",
+       |            "returnDate": "${dataList.head.returnDate.orNull}",
        |            "price": {
        |                "total": "${dataList.head.price.total}"
        |            },
@@ -53,7 +53,7 @@ object TestData {
        |            "origin": "${dataList.last.origin}",
        |            "destination": "${dataList.last.destination}",
        |            "departureDate": "${dataList.last.departureDate}",
-       |            "returnDate": "${dataList.last.returnDate}",
+       |            "returnDate": "${dataList.last.returnDate.orNull}",
        |            "price": {
        |                "total": "${dataList.last.price.total}"
        |            },

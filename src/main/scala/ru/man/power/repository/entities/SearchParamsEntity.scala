@@ -19,9 +19,11 @@ object SearchParamsEntity {
     searchParamsEntity.departure_date,
     searchParamsEntity.one_way,
     searchParamsEntity.max_price,
-    TravelDuration(
-      searchParamsEntity.travel_duration_lower,
-      searchParamsEntity.travel_duration_upper,
+    Some(
+      TravelDuration(
+        searchParamsEntity.travel_duration_lower,
+        searchParamsEntity.travel_duration_upper,
+      ),
     ),
   )
 }

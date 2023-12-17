@@ -1,5 +1,6 @@
 package ru.man.power.client
 
+import cats.Id
 import cats.effect.kernel.Async
 import cats.implicits.toFlatMapOps
 import ru.man.power.client.model.configuration.FlightDestinationsClientConfiguration
@@ -8,6 +9,7 @@ import ru.man.power.commons.SttpResponseUtils
 import ru.man.power.server.domain.SearchParams
 import sttp.client3.{ResponseException, SttpBackend, UriContext, basicRequest}
 import sttp.model.Uri
+import sttp.model.Uri.QuerySegment.KeyValue
 
 trait FlightDestinationsClient[F[_]] {
   def findFlightDestinations(
@@ -36,8 +38,31 @@ class HttpFlightDestinationsClient[F[_]: Async](
       FlightDestinationsResponse,
     ],
   ] = {
-    val findFlightDestinationsUrl: Uri =
-      uri"${flightDestinationsClientConfiguration.baseUrl}?origin=${searchParams.origin}&departureDate=${searchParams.departureDate}&oneWay=${searchParams.oneWay}&maxPrice=${searchParams.maxPrice}&duration=${searchParams.travelDuration.lower},${searchParams.travelDuration.upper}"
+    val findFlightDestinationsUrlId: Id[Uri] =
+      uri"${flightDestinationsClientConfiguration.baseUrl}"
+    val findFlightDestinationsUrl = findFlightDestinationsUrlId
+      .flatMap(
+        _.addQuerySegments(
+          Seq(
+            KeyValue("origin", searchParams.origin),
+            KeyValue("departureDate", searchParams.departureDate),
+            KeyValue("oneWay", s"${searchParams.oneWay}"),
+            KeyValue("maxPrice", s"${searchParams.maxPrice}"),
+          ),
+        ),
+      )
+      .flatMap(uri =>
+        searchParams.travelDuration match {
+          case Some(value) =>
+            uri.addQuerySegment(
+              KeyValue(
+                "duration",
+                s"${value.lower},${value.upper}",
+              ),
+            )
+          case None => uri
+        },
+      )
     basicRequest
       .get(findFlightDestinationsUrl)
       .header("Authorization", accessToken, replaceExisting = true)

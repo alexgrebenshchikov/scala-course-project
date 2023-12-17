@@ -13,7 +13,7 @@ case class Data(
     origin: String,
     destination: String,
     departureDate: String,
-    returnDate: String,
+    returnDate: Option[String],
     price: Price,
     links: Links,
 )
@@ -37,7 +37,7 @@ object Data {
       data.origin,
       data.destination,
       data.departureDate,
-      data.returnDate,
+      data.returnDate.orNull,
       data.links.flightDates,
       data.links.flightOffers,
     )
