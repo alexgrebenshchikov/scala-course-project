@@ -1,8 +1,9 @@
 package ru.man.power.server.domain
 
-import io.circe.Encoder
-import io.circe.generic.semiauto.deriveEncoder
+import io.circe.{Decoder, Encoder}
+import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import ru.man.power.repository.entities.SearchParamsEntity
+import ru.man.power.server.domain.response.SearchHistoryResponse
 import sttp.tapir.Schema
 import tethys.{JsonReader, JsonWriter}
 import tethys.derivation.semiauto.{jsonReader, jsonWriter}
@@ -18,6 +19,9 @@ case class SearchParams(
 object SearchParams {
   implicit val searchParamsEncoder: Encoder[SearchParams] =
     deriveEncoder[SearchParams]
+
+  implicit val searchParamsDecoder: Decoder[SearchParams] =
+    deriveDecoder[SearchParams]
 
   implicit val searchParamsReader: JsonReader[SearchParams] = jsonReader
 

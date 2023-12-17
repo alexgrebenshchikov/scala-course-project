@@ -1,5 +1,7 @@
 package ru.man.power.server.domain.response
 
+import io.circe.Decoder
+import io.circe.generic.semiauto.deriveDecoder
 import ru.man.power.server.domain.SearchParams
 import sttp.tapir.Schema
 import tethys.{JsonReader, JsonWriter}
@@ -10,6 +12,9 @@ final case class SearchHistoryResponse(
 )
 
 object SearchHistoryResponse {
+  implicit val searchHistoryResponseDecoder: Decoder[SearchHistoryResponse] =
+    deriveDecoder[SearchHistoryResponse]
+
   implicit val searchHistoryResponseReader: JsonReader[SearchHistoryResponse] = jsonReader
 
   implicit val searchHistoryResponseWriter: JsonWriter[SearchHistoryResponse] = jsonWriter

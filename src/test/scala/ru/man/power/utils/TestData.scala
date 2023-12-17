@@ -65,4 +65,7 @@ object TestData {
        |    ]
        |}
        |""".stripMargin
+
+  val testLogin: String = "testUser"
+  val testPassword: String = "platypus"
 }

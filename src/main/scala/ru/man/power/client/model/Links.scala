@@ -1,7 +1,7 @@
 package ru.man.power.client.model
 
-import io.circe.Decoder
-import io.circe.generic.semiauto.deriveDecoder
+import io.circe.{Decoder, Encoder}
+import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import sttp.tapir.Schema
 import tethys.{JsonReader, JsonWriter}
 import tethys.derivation.semiauto.{jsonReader, jsonWriter}
@@ -10,6 +10,8 @@ import tethys.derivation.semiauto.{jsonReader, jsonWriter}
 case class Links (flightDates: String, flightOffers: String)
 
 object Links {
+  implicit val linksEncoder: Encoder[Links] = deriveEncoder[Links]
+
   implicit val linksDecoder: Decoder[Links] = deriveDecoder[Links]
 
   implicit val linksReader: JsonReader[Links] = jsonReader
