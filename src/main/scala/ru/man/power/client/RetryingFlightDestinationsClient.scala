@@ -3,7 +3,11 @@ package ru.man.power.client
 import cats.MonadThrow
 import io.circe
 import retry.{Sleep, retryingOnSomeErrors}
-import ru.man.power.client.model.response.{AccessTokenResponse, FlightDestinationsErrorResponse, FlightDestinationsResponse}
+import ru.man.power.client.model.response.{
+  AccessTokenResponse,
+  FlightDestinationsErrorResponse,
+  FlightDestinationsResponse,
+}
 import ru.man.power.commons.RetryUtils
 import ru.man.power.server.domain.SearchParams
 import sttp.client3.ResponseException
@@ -24,5 +28,10 @@ class RetryingFlightDestinationsClient[F[_]: MonadThrow: Sleep](
     onError = retryUtils.onError,
   )(flightDestinationsClient.findFlightDestinations(searchParams, accessToken))
 
-  override def renewAccessToken(): F[AccessTokenResponse] = ???
+  override def renewAccessToken(): F[AccessTokenResponse] =
+    retryingOnSomeErrors[AccessTokenResponse](
+      isWorthRetrying = retryUtils.isTimeoutException,
+      policy = retryUtils.policy,
+      onError = retryUtils.onError,
+    )(flightDestinationsClient.renewAccessToken())
 }

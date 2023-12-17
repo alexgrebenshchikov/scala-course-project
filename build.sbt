@@ -28,7 +28,7 @@ val flywayVersion = "9.16.0"
 lazy val root = (project in file("."))
   .enablePlugins(JavaAppPackaging)
   .settings(
-    name := "pet-store-client",
+    name := "flight-destinations-service",
     libraryDependencies ++= Seq(
       "org.typelevel" %% "cats-core" % catsVersion,
       "org.typelevel" %% "cats-effect" % catsEffect3Version,
@@ -52,7 +52,6 @@ lazy val root = (project in file("."))
       "com.softwaremill.macwire" %% "proxy" % wireVersion,
       "ch.qos.logback" % "logback-core" % "1.4.7",
       "ch.qos.logback" % "logback-classic" % "1.4.7",
-//      "org.slf4j" % "slf4j-api" % "2.0.4" % Test,
       // tapir
       "com.softwaremill.sttp.tapir" %% "tapir-http4s-server" % tapirVersion,
       "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % tapirVersion,
@@ -83,8 +82,4 @@ lazy val IntegrationTest = (project in file("integration"))
   .dependsOn(root % "provided -> provided;compile -> compile;test -> test; runtime -> runtime")
   .settings(
     publish / skip := true,
-    // extra test dependencies
-    libraryDependencies ++= Seq(
-      "org.scalatestplus" %% "mockito-4-11" % mockitoVersion % Test,
-    ),
   )

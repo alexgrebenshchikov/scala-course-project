@@ -9,10 +9,13 @@ import com.typesafe.config.ConfigFactory
 import doobie.Transactor
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.server.Router
+import org.typelevel.log4cats.slf4j.Slf4jFactory
 import pureconfig.ConfigSource
 import pureconfig.generic.auto._
-import ru.man.power.client.HttpFlightDestinationsClient
+import ru.man.power.client.{HttpFlightDestinationsClient, RetryingFlightDestinationsClient}
 import ru.man.power.client.model.configuration.{FlightDestinationsAppConfig, FlightDestinationsClientConfiguration}
+import ru.man.power.commons.RetryUtilsImpl
+import ru.man.power.commons.configuration.RetryConfiguration
 import ru.man.power.database.FlywayMigration
 import ru.man.power.database.Transactor.makeTransactor
 import ru.man.power.repository.{AccessTokenRepositoryPostgresql, FavoritesRepositoryPostgresql, PasswordsRepositoryPostgresql, SearchHistoryRepositoryPostgresql}
@@ -39,10 +42,14 @@ object Main extends IOApp {
         _ <- FlywayMigration.migrate[IO](conf.database)
 
         sttpBackend <- AsyncHttpClientCatsBackend[IO]()
-        flightDestinationsClient = new HttpFlightDestinationsClient(
+        retryConfiguration = RetryConfiguration.load(config)
+        logger = Slf4jFactory.create[IO].getLogger
+        retryUtils = new RetryUtilsImpl[IO](logger, retryConfiguration)
+        client = new HttpFlightDestinationsClient(
           sttpBackend,
           flightDestinationsClientConfiguration,
         )
+        flightDestinationsClient = new RetryingFlightDestinationsClient[IO](client, retryUtils)
 
         endpoints <- IO.delay {
           List(

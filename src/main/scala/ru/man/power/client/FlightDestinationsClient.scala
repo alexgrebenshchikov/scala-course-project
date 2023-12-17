@@ -38,13 +38,12 @@ class HttpFlightDestinationsClient[F[_]: Async](
   ] = {
     val findFlightDestinationsUrl: Uri =
       uri"${flightDestinationsClientConfiguration.baseUrl}?origin=${searchParams.origin}&departureDate=${searchParams.departureDate}&oneWay=${searchParams.oneWay}&maxPrice=${searchParams.maxPrice}&duration=${searchParams.travelDuration.lower},${searchParams.travelDuration.upper}"
-    //uri"${flightDestinationsClientConfiguration.baseUrl}?origin=PAR&maxPrice=200"
     basicRequest
       .get(findFlightDestinationsUrl)
       .header("Authorization", accessToken, replaceExisting = true)
       .response(
         SttpResponseUtils
-          .unwrapResponseOrError2[F, FlightDestinationsErrorResponse, FlightDestinationsResponse],
+          .unwrapResponseOrError[F, FlightDestinationsErrorResponse, FlightDestinationsResponse],
       )
       .readTimeout(flightDestinationsClientConfiguration.timeout)
       .send(sttpBackend)
