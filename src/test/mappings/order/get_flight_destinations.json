@@ -1,0 +1,48 @@
+{
+  "request": {
+    "method": "GET"
+  },
+  "response": {
+    "status": 200,
+    "delayDistribution": {
+      "type": "lognormal",
+      "median": 90,
+      "sigma": 0.1
+    },
+    "jsonBody": {
+      "data": [
+        {
+          "type": "flight-destination",
+          "origin": "PAR",
+          "destination": "CAS",
+          "departureDate": "2022-09-06",
+          "returnDate": "2022-09-11",
+          "price": {
+            "total": "161.90"
+          },
+          "links": {
+            "flightDates": "a.com",
+            "flightOffers": "b.com"
+          }
+        },
+        {
+          "type": "flight-destination",
+          "origin": "PAR",
+          "destination": "AYT",
+          "departureDate": "2022-10-16",
+          "returnDate": "2022-10-31",
+          "price": {
+            "total": "181.50"
+          },
+          "links": {
+            "flightDates": "a.com",
+            "flightOffers": "b.com"
+          }
+        }
+      ]
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
