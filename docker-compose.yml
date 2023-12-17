@@ -1,0 +1,15 @@
+services:
+  web:
+    image: docker.io/library/flight-destinations-service:0.1.0-SNAPSHOT
+    depends_on:
+      db:
+        condition: service_started
+        restart: true
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5432:5432'
+
