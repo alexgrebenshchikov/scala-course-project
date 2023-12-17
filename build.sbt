@@ -25,6 +25,8 @@ val quillVersion = "4.6.0"
 val pureConfigVersion = "0.17.4"
 val flywayVersion = "9.16.0"
 
+dockerBaseImage := "openjdk:11"
+
 lazy val root = (project in file("."))
   .enablePlugins(JavaAppPackaging)
   .settings(
